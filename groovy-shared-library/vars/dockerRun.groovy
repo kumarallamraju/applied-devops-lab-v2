@@ -14,6 +14,6 @@ def call(Map args=[:]) {
   def netArg = network ? "--network ${network}" : ""
 
   // Runs the base64-encoded script inside the target container.
-  def dockerCmd = "docker run --rm ${netArg} ${mntArgs} -w ${workdir} -e CMD_B64='${cmdB64}' ${image} bash -lc 'echo \\$CMD_B64 | base64 -d | bash'"
+  def dockerCmd = "docker run --rm ${netArg} ${mntArgs} -w ${workdir} -e CMD_B64='${cmdB64}' ${image} bash -lc 'echo \$CMD_B64 | base64 -d | bash'"
   sh(dockerCmd)
 }
