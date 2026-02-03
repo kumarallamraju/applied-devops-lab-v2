@@ -1,0 +1,9 @@
+README.md
+pyproject.toml
+src/app_python/__init__.py
+src/app_python/mathops.py
+src/app_python.egg-info/PKG-INFO
+src/app_python.egg-info/SOURCES.txt
+src/app_python.egg-info/dependency_links.txt
+src/app_python.egg-info/top_level.txt
+tests/test_mathops.py
