@@ -17,7 +17,7 @@ pipeline {
     PY_ARTIFACT = "app-python-${VERSION}.tar.gz"
   }
 
-  options { timestamps() }
+  // timestamps() requires the Timestamper plugin; removed for compatibility
 
   stages {
     stage('Checkout') {
