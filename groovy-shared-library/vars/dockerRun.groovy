@@ -10,9 +10,9 @@ def call(Map args=[:]) {
   }
 
   def cmdB64 = cmd.getBytes('UTF-8').encodeBase64().toString()
-  def mntArgs = mounts.collect { m -> "-v "${m}"" }.join(' ')
+  def mntArgs = mounts.collect { m -> "-v ${m}" }.join(' ')
   def netArg = network ? "--network ${network}" : ""
 
   // Runs the base64-encoded script inside the target container.
-  sh("docker run --rm ${netArg} ${mntArgs} -w ${workdir} -e CMD_B64='${cmdB64}' ${image} bash -lc "echo \\$CMD_B64 | base64 -d | bash"")
+  sh("""docker run --rm ${netArg} ${mntArgs} -w ${workdir} -e CMD_B64='${cmdB64}' ${image} bash -lc "echo \$CMD_B64 | base64 -d | bash"""")
 }
