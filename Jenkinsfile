@@ -97,12 +97,12 @@ pipeline {
                 --target-path app-python/${VERSION}/${PY_ARTIFACT} \
                 --username ${ART_USER} --password ${ART_PASS}
 
-              TS_FILE=$(ls /w/dist/typescript-app-*.tgz | head -n 1)
+              TS_FILE=\$(ls /w/dist/typescript-app-*.tgz | head -n 1)
               python /w/app-python/tools/uploader.py \
                 --base-url ${ARTIFACTORY_BASE_URL} \
                 --repo ${ARTIFACTORY_REPO} \
                 --file ${TS_FILE} \
-                --target-path typescript-app/${VERSION}/$(basename ${TS_FILE}) \
+                --target-path typescript-app/${VERSION}/\$(basename ${TS_FILE}) \
                 --username ${ART_USER} --password ${ART_PASS}
             """
           )
