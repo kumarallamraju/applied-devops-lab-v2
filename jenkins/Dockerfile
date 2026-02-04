@@ -15,11 +15,7 @@ RUN apt-get update \
     ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
-RUN curl -fsSL https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux-aarch64.zip -o /tmp/sonar-scanner.zip \
-  && unzip /tmp/sonar-scanner.zip -d /opt \
-  && sed -i 's/use_embedded_jre=true/use_embedded_jre=false/' /opt/sonar-scanner-5.0.1.3006-linux-aarch64/bin/sonar-scanner \
-  && rm -rf /opt/sonar-scanner-5.0.1.3006-linux-aarch64/jre \
-  && ln -s /opt/sonar-scanner-5.0.1.3006-linux-aarch64/bin/sonar-scanner /usr/local/bin/sonar-scanner \
-  && rm /tmp/sonar-scanner.zip
+# Install sonar-scanner via npm
+RUN npm install -g sonarqube-scanner
 
 USER jenkins

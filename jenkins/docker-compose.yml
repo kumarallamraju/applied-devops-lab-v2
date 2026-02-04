@@ -2,7 +2,9 @@ name: devops-lab
 
 services:
   jenkins:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: devops-jenkins:local
     container_name: devops-jenkins
     user: root
