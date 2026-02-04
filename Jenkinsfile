@@ -6,9 +6,6 @@ pipeline {
   environment {
     VERSION = "0.1.${env.BUILD_NUMBER}"
 
-    // docker-compose sets project name: devops-lab => network: devops-lab_default
-    DOCKER_NETWORK = 'devops-lab_default'
-
     ARTIFACTORY_BASE_URL = 'http://artifactory:8081/artifactory'
     ARTIFACTORY_REPO = 'generic-local'
 
@@ -32,37 +29,27 @@ pipeline {
       parallel {
         stage('Python: tests + package') {
           steps {
-            dockerRun(
-              image: 'python:3.11-slim',
-              workdir: '/app',
-              mounts: ["${env.WORKSPACE}/app-python:/app", "${env.WORKSPACE}/dist:/dist"],
-              cmd: """
-                python -m pip install -U pip >/dev/null
-                pip install -e . pytest >/dev/null
-                pytest -q
-                cd / && tar -czf /dist/${PY_ARTIFACT} -C /app .
-                ls -lh /dist
-              """
-            )
+            dir('app-python') {
+              sh 'python3 -m pip install -U pip'
+              sh 'python3 -m pip install -e . pytest'
+              sh 'pytest -q'
+              sh "tar -czf ../dist/${PY_ARTIFACT} -C . ."
+              sh 'ls -lh ../dist'
+            }
           }
         }
 
         stage('TypeScript: tests/build/package') {
           steps {
-            dockerRun(
-              image: 'node:20-bullseye',
-              workdir: '/app',
-              mounts: ["${env.WORKSPACE}/typescript-app:/app", "${env.WORKSPACE}/dist:/dist"],
-              cmd: """
-                npm install
-                npm test -- --coverage
-                npm run build
-                npm pack
-                mkdir -p /dist
-                mv typescript-app-*.tgz /dist/
-                ls -lh /dist
-              """
-            )
+            dir('typescript-app') {
+              sh 'npm install'
+              sh 'npm test -- --coverage'
+              sh 'npm run build'
+              sh 'npm pack'
+              sh 'mkdir -p ../dist'
+              sh 'mv typescript-app-*.tgz ../dist/'
+              sh 'ls -lh ../dist'
+            }
           }
         }
       }
@@ -71,19 +58,15 @@ pipeline {
     stage('SonarQube Scan (TypeScript)') {
       steps {
         withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-          dockerRun(
-            image: 'sonarsource/sonar-scanner-cli:latest',
-            workdir: '/usr/src',
-            network: "${DOCKER_NETWORK}",
-            mounts: ["${env.WORKSPACE}/typescript-app:/usr/src"],
-            cmd: """
+          dir('typescript-app') {
+            sh """
               sonar-scanner \
                 -Dsonar.projectKey=typescript-app \
                 -Dsonar.sources=src \
                 -Dsonar.host.url=${SONAR_HOST_URL} \
                 -Dsonar.token=${SONAR_TOKEN}
             """
-          )
+          }
         }
       }
     }
@@ -91,28 +74,22 @@ pipeline {
     stage('Publish to Artifactory') {
       steps {
         withCredentials([usernamePassword(credentialsId: 'artifactory-creds', usernameVariable: 'ART_USER', passwordVariable: 'ART_PASS')]) {
-          dockerRun(
-            image: 'python:3.11-slim',
-            workdir: '/w',
-            network: "${DOCKER_NETWORK}",
-            mounts: ["${env.WORKSPACE}:/w"],
-            cmd: """
-              python /w/app-python/tools/uploader.py \
-                --base-url ${ARTIFACTORY_BASE_URL} \
-                --repo ${ARTIFACTORY_REPO} \
-                --file /w/dist/${PY_ARTIFACT} \
-                --target-path app-python/${VERSION}/${PY_ARTIFACT} \
-                --username ${ART_USER} --password ${ART_PASS}
+          sh """
+            python3 app-python/tools/uploader.py \
+              --base-url ${ARTIFACTORY_BASE_URL} \
+              --repo ${ARTIFACTORY_REPO} \
+              --file dist/${PY_ARTIFACT} \
+              --target-path app-python/${VERSION}/${PY_ARTIFACT} \
+              --username ${ART_USER} --password ${ART_PASS}
 
-              TS_FILE=\$(ls /w/dist/typescript-app-*.tgz | head -n 1)
-              python /w/app-python/tools/uploader.py \
-                --base-url ${ARTIFACTORY_BASE_URL} \
-                --repo ${ARTIFACTORY_REPO} \
-                --file ${TS_FILE} \
-                --target-path typescript-app/${VERSION}/\$(basename ${TS_FILE}) \
-                --username ${ART_USER} --password ${ART_PASS}
-            """
-          )
+            TS_FILE=\$(ls dist/typescript-app-*.tgz | head -n 1)
+            python3 app-python/tools/uploader.py \
+              --base-url ${ARTIFACTORY_BASE_URL} \
+              --repo ${ARTIFACTORY_REPO} \
+              --file \$TS_FILE \
+              --target-path typescript-app/${VERSION}/\$(basename \$TS_FILE) \
+              --username ${ART_USER} --password ${ART_PASS}
+          """
         }
       }
     }
