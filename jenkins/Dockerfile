@@ -17,6 +17,7 @@ RUN apt-get update \
 
 RUN curl -fsSL https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip -o /tmp/sonar-scanner.zip \
   && unzip /tmp/sonar-scanner.zip -d /opt \
+  && sed -i 's/use_embedded_jre=true/use_embedded_jre=false/' /opt/sonar-scanner-5.0.1.3006-linux/bin/sonar-scanner \
   && rm -rf /opt/sonar-scanner-5.0.1.3006-linux/jre \
   && ln -s /opt/sonar-scanner-5.0.1.3006-linux/bin/sonar-scanner /usr/local/bin/sonar-scanner \
   && rm /tmp/sonar-scanner.zip
