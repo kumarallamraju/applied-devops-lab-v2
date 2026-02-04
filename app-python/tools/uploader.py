@@ -12,11 +12,12 @@ def put_file(url: str, file_path: str, username: str, password: str) -> int:
     with open(file_path, 'rb') as f:
         data = f.read()
 
-    req = urllib.request.Request(url, data=data, method='PUT')
+    # Use URL as-is but add matrix parameters for Artifactory
+    final_url = f"{url};charset=UTF-8"
+    req = urllib.request.Request(final_url, data=data, method='PUT')
     token = base64.b64encode(f"{username}:{password}".encode('utf-8')).decode('utf-8')
     req.add_header('Authorization', f'Basic {token}')
     req.add_header('Content-Type', 'application/octet-stream')
-    req.add_header('Content-Length', str(len(data)))
 
     try:
         with urllib.request.urlopen(req) as resp:

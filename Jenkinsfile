@@ -76,21 +76,17 @@ pipeline {
       steps {
         withCredentials([usernamePassword(credentialsId: 'artifactory-creds', usernameVariable: 'ART_USER', passwordVariable: 'ART_PASS')]) {
           sh '''
-            python3 app-python/tools/uploader.py \
-              --base-url ${ARTIFACTORY_BASE_URL} \
-              --repo ${ARTIFACTORY_REPO} \
-              --file dist/${PY_ARTIFACT} \
-              --target-path ${PY_ARTIFACT} \
-              --username ${ART_USER} --password ${ART_PASS}
+            # Upload Python artifact
+            curl -u ${ART_USER}:${ART_PASS} \
+              -T dist/${PY_ARTIFACT} \
+              "${ARTIFACTORY_BASE_URL}/${ARTIFACTORY_REPO}/${PY_ARTIFACT}"
 
+            # Upload TypeScript artifact
             TS_FILE=$(ls dist/typescript-app-*.tgz | head -n 1)
             TS_NAME=$(basename $TS_FILE)
-            python3 app-python/tools/uploader.py \
-              --base-url ${ARTIFACTORY_BASE_URL} \
-              --repo ${ARTIFACTORY_REPO} \
-              --file $TS_FILE \
-              --target-path $TS_NAME \
-              --username ${ART_USER} --password ${ART_PASS}
+            curl -u ${ART_USER}:${ART_PASS} \
+              -T $TS_FILE \
+              "${ARTIFACTORY_BASE_URL}/${ARTIFACTORY_REPO}/${TS_NAME}"
           '''
         }
       }
