@@ -73,6 +73,8 @@ pipeline {
             mounts: ["${env.WORKSPACE}/typescript-app:/src"],
             cmd: """
               sonar-scanner \
+                -Dsonar.projectKey=typescript-app \
+                -Dsonar.sources=src \
                 -Dsonar.host.url=${SONAR_HOST_URL} \
                 -Dsonar.token=${SONAR_TOKEN}
             """
