@@ -54,7 +54,7 @@ pipeline {
               workdir: '/app',
               mounts: ["${env.WORKSPACE}/typescript-app:/app", "${env.WORKSPACE}/dist:/dist"],
               cmd: """
-                npm ci
+                npm install
                 npm test -- --coverage
                 npm run build
                 npm pack
