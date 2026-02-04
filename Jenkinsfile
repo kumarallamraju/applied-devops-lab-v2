@@ -60,13 +60,13 @@ pipeline {
       steps {
         withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
           dir('typescript-app') {
-            sh """
+            sh '''
               sonar-scanner \
                 -Dsonar.projectKey=typescript-app \
                 -Dsonar.sources=src \
-                -Dsonar.host.url=${SONAR_HOST_URL} \
-                -Dsonar.token=${SONAR_TOKEN}
-            """
+                -Dsonar.host.url=$SONAR_HOST_URL \
+                -Dsonar.token=$SONAR_TOKEN
+            '''
           }
         }
       }
