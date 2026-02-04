@@ -52,10 +52,15 @@ pipeline {
             dockerRun(
               image: 'node:20-bullseye',
               workdir: '/app',
-              mounts: ["${env.WORKSPACE}/typescript-app:/app", "${env.WORKSPACE}/dist:/app/../dist"],
+              mounts: ["${env.WORKSPACE}/typescript-app:/app", "${env.WORKSPACE}/dist:/dist"],
               cmd: """
-                bash scripts/package.sh
-                ls -lh ../dist
+                npm ci
+                npm test -- --coverage
+                npm run build
+                npm pack
+                mkdir -p /dist
+                mv typescript-app-*.tgz /dist/
+                ls -lh /dist
               """
             )
           }
@@ -68,9 +73,9 @@ pipeline {
         withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
           dockerRun(
             image: 'sonarsource/sonar-scanner-cli:latest',
-            workdir: '/src',
+            workdir: '/usr/src',
             network: "${DOCKER_NETWORK}",
-            mounts: ["${env.WORKSPACE}/typescript-app:/src"],
+            mounts: ["${env.WORKSPACE}/typescript-app:/usr/src"],
             cmd: """
               sonar-scanner \
                 -Dsonar.projectKey=typescript-app \
