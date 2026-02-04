@@ -48,7 +48,7 @@ All containers should show "Up".
 - **UI**: http://localhost:8082/ui/
 - **API**: http://localhost:8081/artifactory/
 - **Username**: `admin`
-- **Password**: `Azure12345678#`
+- **Password**: `----`
 
 ### SonarQube
 - **URL**: http://localhost:9000
