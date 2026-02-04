@@ -7,7 +7,7 @@ pipeline {
     VERSION = "0.1.${env.BUILD_NUMBER}"
 
     ARTIFACTORY_BASE_URL = 'http://artifactory:8081/artifactory'
-    ARTIFACTORY_REPO = 'generic-local'
+    ARTIFACTORY_REPO = 'example-repo-local'
 
     SONAR_HOST_URL = 'http://sonarqube:9000'
 
