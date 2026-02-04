@@ -30,9 +30,10 @@ pipeline {
         stage('Python: tests + package') {
           steps {
             dir('app-python') {
-              sh 'python3 -m pip install -U pip'
-              sh 'python3 -m pip install -e . pytest'
-              sh 'pytest -q'
+              sh 'python3 -m venv .venv'
+              sh '. .venv/bin/activate && python -m pip install -U pip'
+              sh '. .venv/bin/activate && python -m pip install -e . pytest'
+              sh '. .venv/bin/activate && pytest -q'
               sh "tar -czf ../dist/${PY_ARTIFACT} -C . ."
               sh 'ls -lh ../dist'
             }
